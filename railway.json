@@ -4,7 +4,12 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-   "start": "uvicorn main:app --host 0.0.0.0 --port $PORT"
+   {
+  "scripts": {
+    "start": "uvicorn main:app --host 0.0.0.0 --port 8080"
+  }
+}
+
 
   }
 }
