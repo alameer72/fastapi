@@ -13,19 +13,11 @@ class BBox(BaseModel):
 
 @app.get("/")
 def health_check():
-    # Simple health check so we know the service is up
     return {"status": "ok", "service": "VGI Numbering Engine (stub)"}
 
 
 @app.post("/generate-blocks-bbox")
 def generate_blocks(bbox: BBox):
-    """
-    Dummy implementation:
-    - Takes a bounding box (north/south/east/west)
-    - Returns a simple GeoJSON FeatureCollection with one point
-      at the middle of the box.
-    """
-
     mid_lat = (bbox.north + bbox.south) / 2
     mid_lon = (bbox.east + bbox.west) / 2
 
@@ -44,3 +36,4 @@ def generate_blocks(bbox: BBox):
     }
 
     return feature_collection
+
