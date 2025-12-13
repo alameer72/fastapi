@@ -36,4 +36,3 @@ def generate_blocks(bbox: BBox):
     }
 
     return feature_collection
-
