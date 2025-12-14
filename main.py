@@ -1,6 +1,5 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional
 
 app = FastAPI(title="VGI Numbering Engine", version="0.1.0")
 
@@ -31,7 +30,6 @@ def generate_zones_streets(req: GenerateRequest):
         raise HTTPException(status_code=400, detail="Invalid bbox: east must be > west")
 
     # Mock deterministic output (v1)
-    # NOTE: Real GIS logic will replace this in later stages.
     zone_poly = {
         "type": "Polygon",
         "coordinates": [[
@@ -43,7 +41,21 @@ def generate_zones_streets(req: GenerateRequest):
         ]]
     }
 
+    mid_lat = (req.bbox.north + req.bbox.south) / 2.0
     street_line = {
         "type": "LineString",
         "coordinates": [
-            [req.bbox.west, (req.bbox.north + req.bbox.south) / 2],
+            [req.bbox.west, mid_lat],
+            [req.bbox.east, mid_lat],
+        ]
+    }
+
+    return {
+        "districtId": req.districtId,
+        "zones": [
+            {"rawId": "z1", "geometry": zone_poly}
+        ],
+        "streets": [
+            {"rawId": "s1", "zoneRawId": "z1", "type": "primary", "geometry": street_line}
+        ]
+    }
