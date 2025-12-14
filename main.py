@@ -1,38 +1,49 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional
 
-app = FastAPI()
+app = FastAPI(title="VGI Numbering Engine", version="0.1.0")
 
 
 class BBox(BaseModel):
-    north: float
-    south: float
-    east: float
-    west: float
+    north: float = Field(..., description="Max latitude")
+    south: float = Field(..., description="Min latitude")
+    east: float = Field(..., description="Max longitude")
+    west: float = Field(..., description="Min longitude")
 
 
-@app.get("/")
-def health_check():
-    return {"status": "ok", "service": "VGI Numbering Engine (stub)"}
+class GenerateRequest(BaseModel):
+    districtId: str = Field(..., description="Firestore district document id")
+    bbox: BBox
 
 
-@app.post("/generate-blocks-bbox")
-def generate_blocks(bbox: BBox):
-    mid_lat = (bbox.north + bbox.south) / 2
-    mid_lon = (bbox.east + bbox.west) / 2
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
-    feature_collection = {
-        "type": "FeatureCollection",
-        "features": [
-            {
-                "type": "Feature",
-                "properties": {"block_id": 1},
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": [mid_lon, mid_lat],
-                },
-            }
-        ],
+
+@app.post("/generate-zones-streets-bbox")
+def generate_zones_streets(req: GenerateRequest):
+    # Basic validation
+    if req.bbox.north <= req.bbox.south:
+        raise HTTPException(status_code=400, detail="Invalid bbox: north must be > south")
+    if req.bbox.east <= req.bbox.west:
+        raise HTTPException(status_code=400, detail="Invalid bbox: east must be > west")
+
+    # Mock deterministic output (v1)
+    # NOTE: Real GIS logic will replace this in later stages.
+    zone_poly = {
+        "type": "Polygon",
+        "coordinates": [[
+            [req.bbox.west, req.bbox.south],
+            [req.bbox.east, req.bbox.south],
+            [req.bbox.east, req.bbox.north],
+            [req.bbox.west, req.bbox.north],
+            [req.bbox.west, req.bbox.south],
+        ]]
     }
 
-    return feature_collection
+    street_line = {
+        "type": "LineString",
+        "coordinates": [
+            [req.bbox.west, (req.bbox.north + req.bbox.south) / 2],
