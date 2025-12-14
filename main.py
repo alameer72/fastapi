@@ -23,13 +23,11 @@ def health():
 
 @app.post("/generate-zones-streets-bbox")
 def generate_zones_streets(req: GenerateRequest):
-    # Basic validation
     if req.bbox.north <= req.bbox.south:
         raise HTTPException(status_code=400, detail="Invalid bbox: north must be > south")
     if req.bbox.east <= req.bbox.west:
         raise HTTPException(status_code=400, detail="Invalid bbox: east must be > west")
 
-    # Mock deterministic output (v1)
     zone_poly = {
         "type": "Polygon",
         "coordinates": [[
@@ -52,10 +50,6 @@ def generate_zones_streets(req: GenerateRequest):
 
     return {
         "districtId": req.districtId,
-        "zones": [
-            {"rawId": "z1", "geometry": zone_poly}
-        ],
-        "streets": [
-            {"rawId": "s1", "zoneRawId": "z1", "type": "primary", "geometry": street_line}
-        ]
+        "zones": [{"rawId": "z1", "geometry": zone_poly}],
+        "streets": [{"rawId": "s1", "zoneRawId": "z1", "type": "primary", "geometry": street_line}],
     }
