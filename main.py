@@ -35,7 +35,7 @@ def generate_zones_streets(req: GenerateRequest):
             [req.bbox.east, req.bbox.south],
             [req.bbox.east, req.bbox.north],
             [req.bbox.west, req.bbox.north],
-            [req.bbox.west, req.bbox.south],
+          
         ]]
     }
 
